@@ -1,0 +1,24 @@
+{
+  "name": "githubci-pullrequest-count-control",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/THEhEROLocker/GithubCI-PullRequest-count-control.git"
+  },
+  "author": "Rohan Elukurthy",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/THEhEROLocker/GithubCI-PullRequest-count-control/issues"
+  },
+  "homepage": "https://github.com/THEhEROLocker/GithubCI-PullRequest-count-control#readme",
+  "dependencies": {
+    "@octokit/rest": "^14.0.5",
+    "body-parser": "^1.18.2",
+    "express": "^4.16.2"
+  }
+}
