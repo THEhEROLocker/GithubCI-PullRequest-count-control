@@ -18,8 +18,9 @@ octokit.authenticate({
 });
 
 function verifySignature(req, res, next) {
-      let hash = "sha1="+ crypto.createHmac('sha1', secret).update(JSON.stringify(req.body)).digest('hex');
-      if(hash === req.headers['x-hub-signature'] && crypto.timingSafeEqual(hash,req.headers['x-hub-signature'])){
+      let myCreatedHash = "sha1="+ crypto.createHmac('sha1', secret).update(JSON.stringify(req.body)).digest('hex');
+      let githubHash = req.headers['x-hub-signature'];
+      if(myCreatedHash=== githubHash && crypto.timingSafeEqual(Buffer.from(myCreatedHash,"utf-8"),Buffer.from(githubHash,"utf-8"))){
             next();
       }
       else{
