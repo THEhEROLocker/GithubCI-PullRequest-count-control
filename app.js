@@ -3,19 +3,26 @@ const octokit = require('@octokit/rest')({
 });
 const express = require('express');
 var bodyParser = require('body-parser');
+const crypto = require('crypto');
 
 const app = express();
 var jsonParser = bodyParser.json();
 var urlencodedParser = bodyParser.urlencoded({ extended: false });
 
 const MIN_REQUIRED_APPROVES = 3;
+const secret = 'YOUR_GITHUB_SECRET_KEY_FOR_WEBHOOK';
 
 octokit.authenticate({
       type: 'oauth',
       token: 'YOUR_GITHUB_API_TOKEN'
 });
 
-app.post('/event_handler', jsonParser, function (req, res) {
+function verifySignature(err, req, res, next) {
+      let hash = crypto.createHmac('sha1', secret).update(req.body).digest('hex');
+      console.log(hash);
+}
+
+app.post('/event_handler', jsonParser,verifySignature, function (req, res) {
       if (req.headers['x-github-event'] === 'pull_request' || req.headers['x-github-event'] === 'pull_request_review') {
             console.log(req.body.pull_request.id);
 
