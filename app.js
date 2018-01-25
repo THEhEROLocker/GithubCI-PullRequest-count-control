@@ -18,8 +18,13 @@ octokit.authenticate({
 });
 
 function verifySignature(req, res, next) {
-      let hash = crypto.createHmac('sha1', secret).update(JSON.stringify(req.body)).digest('hex');
-      console.log(hash);
+      let hash = "sha1="+ crypto.createHmac('sha1', secret).update(JSON.stringify(req.body)).digest('hex');
+      if(hash === req.headers['x-hub-signature'] && crypto.timingSafeEqual(hash,req.headers['x-hub-signature'])){
+            next();
+      }
+      else{
+            res.status(500).send("You can't fool me");
+      }
 }
 
 app.post('/event_handler', jsonParser, verifySignature, function (req, res) {
