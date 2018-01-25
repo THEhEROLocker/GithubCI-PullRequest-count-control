@@ -20,8 +20,8 @@ app.post('/event_handler', jsonParser, function (req, res) {
             console.log(req.body.pull_request.id);
 
             octokit.pullRequests.getReviews({
-                  owner: req.body.pull_request.repo.owner.login,
-                  repo: req.body.pull_request.repo.name,
+                  owner: req.body.pull_request.head.repo.owner.login,
+                  repo: req.body.pull_request.head.repo.name,
                   number: req.body.pull_request.number
             })
             .then(function (pullReqResponse) {
@@ -41,8 +41,8 @@ app.post('/event_handler', jsonParser, function (req, res) {
                   }
 
                   octokit.repos.createStatus({
-                        owner: req.body.pull_request.repo.owner.login,
-                        repo: req.body.pull_request.repo.name,
+                        owner: req.body.pull_request.head.repo.owner.login,
+                        repo: req.body.pull_request.head.repo.name,
                         sha: req.body.pull_request.head.sha,
                         state: Status,
                         description: Description,
