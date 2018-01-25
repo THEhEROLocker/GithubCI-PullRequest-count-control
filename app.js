@@ -1,22 +1,22 @@
 const octokit = require('@octokit/rest')({
       debug: true
-})
-const express = require('express')
-var bodyParser = require('body-parser')
-const app = express()
+});
+const express = require('express');
+var bodyParser = require('body-parser');
 
-var jsonParser = bodyParser.json()
-var urlencodedParser = bodyParser.urlencoded({ extended: false })
+const app = express();
+var jsonParser = bodyParser.json();
+var urlencodedParser = bodyParser.urlencoded({ extended: false });
+
+const MIN_REQUIRED_APPROVES = 3;
 
 octokit.authenticate({
       type: 'oauth',
-      token: 'bbdf5df64b579835ff045fd313e3ff27fb8d01be'
-})
-
-app.get('/', (req, res) => res.send('Hello World!'))
+      token: 'YOUR_GITHUB_API_TOKEN'
+});
 
 app.post('/event_handler', jsonParser, function (req, res) {
-      if (req.headers['x-github-event'] === 'pull_request') {
+      if (req.headers['x-github-event'] === 'pull_request' || req.headers['x-github-event'] === 'pull_request_review') {
             console.log(req.body.pull_request.id);
 
             octokit.pullRequests.getReviews({
@@ -25,33 +25,31 @@ app.post('/event_handler', jsonParser, function (req, res) {
                   number: req.body.pull_request.number
             })
             .then(function (pullReqResponse) {
-                  var data = JSON.stringify(pullReqResponse.data);
-                  var countOccurencesApproved = (data.length - data.replace(/APPROVED/g,"").length) / "APPROVED".length;
-                  if (countOccurencesApproved === 1) {
-                        octokit.repos.createStatus({
-                              owner: req.body.pull_request.repo.owner.login,
-                              repo: req.body.pull_request.repo.name,
-                              sha: req.body.pull_request.head.sha,
-                              state: 'success',
-                              description: "Ready for Merge",
-                              context: "Rohan Elukurthy CI Server"
-                        }).then(() => res.send("success"))
+                  let data = JSON.stringify(pullReqResponse.data);
+                  let countOccurencesApproved = (data.length - data.replace(/APPROVED/g, "").length) / "APPROVED".length;
+                  
+                  let Status;
+                  let Description;
+                  
+                  if (countOccurencesApproved === MIN_REQUIRED_APPROVES) {
+                        Status = "success";
+                        Description = "Ready for Merge";
                   }
                   else {
-                        octokit.repos.createStatus({
-                              owner: req.body.pull_request.repo.owner.login,
-                              repo: req.body.pull_request.repo.name,
-                              sha: req.body.pull_request.head.sha,
-                              state: 'failure',
-                              description: "The number of approves are only "+ countOccurencesApproved + " Need three to merge",
-                              context: "Rohan Elukurthy CI Server"
-                        }).then(() => res.send("The number of approves are only "+ countOccurencesApproved + " Need three to merge"))
+                        Status = "failure";
+                        Description = "The number of approves are only " + countOccurencesApproved + " Need "+ MIN_REQUIRED_APPROVES +" to merge";
                   }
+
+                  octokit.repos.createStatus({
+                        owner: req.body.pull_request.repo.owner.login,
+                        repo: req.body.pull_request.repo.name,
+                        sha: req.body.pull_request.head.sha,
+                        state: Status,
+                        description: Description,
+                        context: "My Personal CI Server"
+                  }).then(() => res.send(Status))
             })
       }
 })
 
-app.listen(4567, () => console.log('Example app listening on port 4567!'))
-
-
-
+app.listen(4567, () => console.log('Server listening on port 4567!'));
