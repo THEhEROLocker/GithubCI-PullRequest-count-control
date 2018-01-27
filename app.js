@@ -38,8 +38,7 @@ app.post('/event_handler', jsonParser, verifySignature, function (req, res) {
                   number: req.body.pull_request.number
             })
             .then(function (pullReqResponse) {
-                  let data = JSON.stringify(pullReqResponse.data);
-                  let countOccurencesApproved = (data.length - data.replace(/APPROVED/g, "").length) / "APPROVED".length;
+                  let countOccurencesApproved = countNumberOfApproves(pullReqResponse.data);
                   
                   let Status;
                   let Description;
@@ -64,5 +63,28 @@ app.post('/event_handler', jsonParser, verifySignature, function (req, res) {
             })
       }
 })
+
+function countNumberOfApproves(pullRequestReviews){
+    let finalStatusOfApproval = {};
+    let countApproved = 0;
+
+    pullRequestReviews.forEach(function(element) {
+        if(element.state === "APPROVED"){
+            finalStatusOfApproval[element.user.id] = 1;
+        }
+        else if(element.state === "CHANGES_REQUESTED" || element.status === "DISMISSED"){
+            finalStatusOfApproval[element.user.id] = 0;
+        }
+        else{
+            finalStatusOfApproval[element.user.id] = 0;
+        }
+    }, this);
+
+    Object.keys(finalStatusOfApproval).forEach(function(key){
+        countApproved += finalStatusOfApproval[key];
+    });
+
+    return countApproved;
+}
 
 app.listen(4567, () => console.log('Server listening on port 4567!'));
