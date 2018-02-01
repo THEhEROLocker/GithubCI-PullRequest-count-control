@@ -9,7 +9,7 @@ const app = express();
 var jsonParser = bodyParser.json();
 var urlencodedParser = bodyParser.urlencoded({ extended: false });
 
-const MIN_REQUIRED_APPROVES = 3;
+const MIN_REQUIRED_APPROVES = 3; //Change this as per your requirement
 const secret = 'YOUR_GITHUB_SECRET_KEY_FOR_WEBHOOK';
 
 octokit.authenticate({
@@ -43,13 +43,13 @@ app.post('/event_handler', jsonParser, verifySignature, function (req, res) {
                   let Status;
                   let Description;
                   
-                  if (countOccurencesApproved === MIN_REQUIRED_APPROVES) {
+                  if (countOccurencesApproved >= MIN_REQUIRED_APPROVES) {
                         Status = "success";
                         Description = "Ready for Merge";
                   }
                   else {
                         Status = "failure";
-                        Description = "The number of approves are only " + countOccurencesApproved + " Need "+ MIN_REQUIRED_APPROVES +" to merge";
+                        Description = "The number of approves are " + countOccurencesApproved + " Need "+ MIN_REQUIRED_APPROVES;
                   }
 
                   octokit.repos.createStatus({
