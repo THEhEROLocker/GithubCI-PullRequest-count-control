@@ -6,7 +6,7 @@ There is no way to enforce a minimum number of Approvals for a pull request befo
 This adds a status API to the pull request and will notify when a pull request is ready for a merge. The CI server will recieve all request updates from Github through a webhook. The webhook will then interface with the Github status API and update the status of the pull request as configured. 
 
 <p>
-  <img src="./screenshots/statusAPI.png" width="600" style= "border: 2px solid black;"/>
+  <img src="./screenshots/statusAPIRED.png" width="400" height="250" style= "border: 2px solid black;"/> <img src="./screenshots/statusAPIGreen.png" width="400" height="250" style= "border: 2px solid black;"/>
 </p>
 
 ### Usage 
